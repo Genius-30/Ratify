@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { IUser } from "./user.model";
 import { IOrg } from "./organization.model";
+import { IDiscussion } from "./discussion.model";
 
 export interface IFeedback extends Document {
   _id: string;
@@ -8,7 +9,8 @@ export interface IFeedback extends Document {
   receiver: IOrg;
   title: string;
   content: string;
-  rating: number;
+  isTaked: boolean;
+  discussionsId: IDiscussion[];
 }
 
 const FeedbackSchema: Schema<IFeedback> = new mongoose.Schema(
@@ -25,9 +27,13 @@ const FeedbackSchema: Schema<IFeedback> = new mongoose.Schema(
       type: String,
       required: [true, "Content is required!"],
       min: [3, "Content must be atleast 3 characters long!"],
-      max: [256, "Content must be atmost 256 characters long!"],
+      max: [1000, "Content must be atmost 256 characters long!"],
     },
-    rating: { type: Number, min: 1, max: 5 },
+    isTaked: {
+      type: Boolean,
+      default: false,
+    },
+    discussionsId: [{ type: Schema.Types.ObjectId, ref: "Discussion" }],
   },
   {
     timestamps: true,

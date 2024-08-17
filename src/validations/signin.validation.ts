@@ -1,9 +1,8 @@
 import { z } from "zod";
 
-export const signinSchema = z.object({
+export const signinValidation = z.object({
   identifier: z
     .string()
-    .min(3, { message: "Identifier must be at least 3 characters!" })
     .refine(
       (val) =>
         /^[a-zA-Z0-9_]+$/.test(val) ||

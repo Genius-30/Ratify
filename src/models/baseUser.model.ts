@@ -1,5 +1,6 @@
 import { Roles } from "@/types/enums";
 import { Document, Schema } from "mongoose";
+import { IDiscussion } from "./discussion.model";
 
 export interface IBaseUser extends Document {
   _id: string;
@@ -11,6 +12,7 @@ export interface IBaseUser extends Document {
   isVerified: boolean;
   token: string;
   role: string;
+  discussions: IDiscussion[];
 }
 
 const baseUserSchema: Schema<IBaseUser> = new Schema(
@@ -60,6 +62,7 @@ const baseUserSchema: Schema<IBaseUser> = new Schema(
       required: [true, "Role is required!"],
       enum: Roles,
     },
+    discussions: [{ type: Schema.Types.ObjectId, ref: "Discussion" }],
   },
   { timestamps: true }
 );

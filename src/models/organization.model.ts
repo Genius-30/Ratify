@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import baseUserSchema, { IBaseUser } from "./baseUser.model";
 import { Industries } from "@/types/enums";
-import { comparePassword, hashPassword } from "@/utils/password";
+import { comparePassword, hashPassword } from "@/utils/password.util";
 
 export interface IOrg extends IBaseUser {
   organizationName: string;

@@ -10,7 +10,7 @@ export const usernameValidation = z
     "Username can only contain alphanumeric characters and underscores."
   );
 
-export const signupSchemaForUser = z.object({
+export const signupValidationForUser = z.object({
   avatar: z.string().optional(),
   fullName: z
     .string()
@@ -24,7 +24,7 @@ export const signupSchemaForUser = z.object({
   role: z.enum(Roles, { invalid_type_error: "Invalid role" }),
 });
 
-export const signupSchemaForOrg = z.object({
+export const signupValidationForOrg = z.object({
   avatar: z.string().optional(),
   organizationName: usernameValidation,
   organizationDescription: z

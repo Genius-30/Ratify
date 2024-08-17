@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { IFeedback } from "./feedback.model";
 import baseUserSchema, { IBaseUser } from "./baseUser.model";
 import { IOrg } from "./organization.model";
-import { comparePassword, hashPassword } from "@/utils/password";
+import { comparePassword, hashPassword } from "@/utils/password.util";
 
 export interface IUser extends IBaseUser {
   fullName: string;
