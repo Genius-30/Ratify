@@ -46,4 +46,8 @@ export const signupValidationForOrg = z.object({
     .min(1, { message: "At least one top executive is required!" })
     .max(10, { message: "At most 10 top executives are allowed!" }),
   links: z.array(z.string()).optional(),
+  images: z
+    .array(z.string())
+    .min(1, { message: "Atleast one image is required!" })
+    .max(10, { message: "Atmost 10 images are allowed!" }),
 });

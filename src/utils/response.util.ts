@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 
-export const apiResponse = (statusCode: number = 200, data: any) => {
-  return NextResponse.json({ success: true, data }, { status: statusCode });
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+}
+
+export interface ApiError {
+  success: boolean;
+  message: string;
+  error?: any;
+}
+
+export const apiResponse = <T>(statusCode: number = 200, data: any) => {
+  const response: ApiResponse<T> = { success: true, data };
+  return NextResponse.json(response, { status: statusCode });
 };
 
 export const apiError = (
@@ -10,8 +22,6 @@ export const apiError = (
   error?: any
 ) => {
   console.error(error);
-  return NextResponse.json(
-    { success: false, message, error },
-    { status: statusCode }
-  );
+  const response: ApiError = { success: false, message, error };
+  return NextResponse.json(response, { status: statusCode });
 };

@@ -9,6 +9,7 @@ export interface IOrg extends IBaseUser {
   industry: string;
   topExecutives: Array<String>;
   links: Array<String>;
+  images: Array<String>;
 }
 
 const OrgSchema: Schema<IOrg> = new mongoose.Schema({
@@ -33,14 +34,22 @@ const OrgSchema: Schema<IOrg> = new mongoose.Schema({
   },
 
   topExecutives: {
-    type: [],
+    type: [String],
     required: [true, "Top executives name is required!"],
     min: [1, "Atleast one top executive is required"],
     max: [10, "Atmost 10 top executives are allowed"],
   },
+
   links: {
-    type: [],
+    type: [String],
     default: [],
+  },
+
+  images: {
+    type: [String],
+    required: [true, "Images reuqired for creating an orgnization account"],
+    min: [1, "Atleast one image is required!"],
+    max: [10, "Atmost 10 images are allowed"],
   },
 });
 
