@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Ratify",
   description:
     "A place where anyone has a right to review any product or business",
+  icons: "/favicon.png",
 };
 
 export default function RootLayout({
@@ -17,7 +18,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <link rel="icon" href="/favicon.png" />
       <body className={inter.className}>{children}</body>
     </html>
   );
