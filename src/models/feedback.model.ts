@@ -9,7 +9,7 @@ export interface IFeedback extends Document {
   receiver: IOrg;
   title: string;
   content: string;
-  isTaked: boolean;
+  isFeedbackTaked: boolean;
   discussionsId: IDiscussion[];
 }
 
@@ -29,7 +29,7 @@ const FeedbackSchema: Schema<IFeedback> = new mongoose.Schema(
       min: [3, "Content must be atleast 3 characters long!"],
       max: [1000, "Content must be atmost 256 characters long!"],
     },
-    isTaked: {
+    isFeedbackTaked: {
       type: Boolean,
       default: false,
     },
