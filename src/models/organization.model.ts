@@ -5,9 +5,9 @@ import { comparePassword, hashPassword } from "@/utils/password.util";
 
 export interface IOrg extends IBaseUser {
   organizationName: string;
-  organizationDescription: string;
+  organizationBio: string;
   industry: string;
-  topExecutives: Array<String>;
+  topExecutives: string;
   links: Array<String>;
   images: Array<String>;
 }
@@ -20,11 +20,11 @@ const OrgSchema: Schema<IOrg> = new mongoose.Schema({
     max: [32, "Organization name must be 2-100 characters!"],
   },
 
-  organizationDescription: {
+  organizationBio: {
     type: String,
-    required: [true, "Organization description is required!"],
-    min: [50, "Organization description must be atleast 50 characters long!"],
-    max: [1000, "Organization description must be 50-1000 characters!"],
+    required: [true, "Organization bio is required!"],
+    min: [50, "Organization bio must be atleast 50 characters long!"],
+    max: [1000, "Organization bio must be 50-1000 characters!"],
   },
 
   industry: {
@@ -34,10 +34,8 @@ const OrgSchema: Schema<IOrg> = new mongoose.Schema({
   },
 
   topExecutives: {
-    type: [String],
+    type: String,
     required: [true, "Top executives name is required!"],
-    min: [1, "Atleast one top executive is required"],
-    max: [10, "Atmost 10 top executives are allowed"],
   },
 
   links: {

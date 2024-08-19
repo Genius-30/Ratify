@@ -1,5 +1,9 @@
-const Roles = ["user", "organization"] as const;
-const Industries = [
+export enum UserRole {
+  USER = "USER",
+  ORG = "ORGANIZATION",
+}
+
+export const Industries = [
   "Technology",
   "Healthcare",
   "Finance",
@@ -9,5 +13,3 @@ const Industries = [
   "Manufacturing",
   "Energy",
 ] as const;
-
-export { Roles, Industries };

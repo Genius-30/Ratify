@@ -1,18 +1,15 @@
-import { Roles } from "@/types/enums";
+import { UserRole } from "@/types/enums";
 import { Document, Schema } from "mongoose";
-import { IDiscussion } from "./discussion.model";
 
 export interface IBaseUser extends Document {
   _id: string;
   email: string;
   password: string;
-  avatar: string;
+  avatar?: string;
   verifyCode: string;
   verifyCodeExpiry: Date;
   isVerified: boolean;
-  token: string;
-  role: string;
-  discussions: IDiscussion[];
+  role: UserRole;
 }
 
 const baseUserSchema: Schema<IBaseUser> = new Schema(
@@ -60,9 +57,8 @@ const baseUserSchema: Schema<IBaseUser> = new Schema(
     role: {
       type: String,
       required: [true, "Role is required!"],
-      enum: Roles,
+      enum: Object.values(UserRole),
     },
-    discussions: [{ type: Schema.Types.ObjectId, ref: "Discussion" }],
   },
   { timestamps: true }
 );

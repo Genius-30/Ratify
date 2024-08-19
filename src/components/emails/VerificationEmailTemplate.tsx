@@ -35,18 +35,18 @@ export default function VerificationEmailTemplate({
           fontStyle="normal"
         />
       </Head>
-      <Preview>Your verification code for RateBuzz</Preview>
+      <Preview>Your verification code for Ratify</Preview>
       <Container style={styles.container}>
         <Section style={styles.section}>
           <Row>
             <Heading as="h2" style={styles.heading}>
-              Welcome to RateBuzz, {username}!
+              Welcome to Ratify, {username}!
             </Heading>
           </Row>
           <Row>
             <Text style={styles.text}>
               Thank you for joining our community! To complete your registration
-              and start giving feedback to companies, please use the
+              and start giving feedback to organizations, please use the
               verification code below:
             </Text>
           </Row>

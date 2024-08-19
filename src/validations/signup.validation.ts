@@ -1,4 +1,4 @@
-import { Industries, Roles } from "@/types/enums";
+import { Industries, UserRole } from "@/types/enums";
 import { z } from "zod";
 
 export const usernameValidation = z
@@ -21,13 +21,13 @@ export const signupValidationForUser = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters!" }),
-  role: z.enum(Roles, { invalid_type_error: "Invalid role" }),
+  role: z.literal(UserRole.USER, { invalid_type_error: "Invalid role" }),
 });
 
 export const signupValidationForOrg = z.object({
-  avatar: z.string().optional(),
+  avatar: z.string(),
   organizationName: usernameValidation,
-  organizationDescription: z
+  organizationBio: z
     .string()
     .min(50, {
       message: "Organization description must be at least 50 characters!",
@@ -39,12 +39,11 @@ export const signupValidationForOrg = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters!" }),
-  role: z.enum(Roles, { invalid_type_error: "Invalid role" }),
+  role: z.literal(UserRole.ORG, {
+    invalid_type_error: "Invalid role",
+  }),
   industry: z.enum(Industries, { invalid_type_error: "Invalid industry" }),
-  topExecutives: z
-    .array(z.string())
-    .min(1, { message: "At least one top executive is required!" })
-    .max(10, { message: "At most 10 top executives are allowed!" }),
+  topExecutives: z.string(),
   links: z.array(z.string()).optional(),
   images: z
     .array(z.string())

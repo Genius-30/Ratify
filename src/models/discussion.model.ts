@@ -1,9 +1,20 @@
 import mongoose, { ObjectId, Schema } from "mongoose";
 
+export enum ParticipantType {
+  User = "User",
+  Organization = "Organization",
+}
+
 export interface IDiscussion extends Document {
   _id: string;
-  sender: ObjectId;
-  receiver: ObjectId;
+  sender: {
+    id: ObjectId;
+    type: ParticipantType;
+  };
+  receiver: {
+    id: ObjectId;
+    type: ParticipantType;
+  };
   content: string;
   createdAt: Date;
   updatedAt: Date;
@@ -11,8 +22,14 @@ export interface IDiscussion extends Document {
 
 const DiscussionSchema: Schema<IDiscussion> = new mongoose.Schema(
   {
-    sender: { type: Schema.Types.ObjectId, ref: "User" },
-    receiver: { type: Schema.Types.ObjectId, ref: "User" },
+    sender: {
+      id: { type: Schema.Types.ObjectId, required: true },
+      type: { type: String, enum: ParticipantType, required: true },
+    },
+    receiver: {
+      id: { type: Schema.Types.ObjectId, required: true },
+      type: { type: String, enum: ParticipantType, required: true },
+    },
     content: {
       type: String,
       required: [true, "Discussion content is required!"],

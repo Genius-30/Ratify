@@ -3,7 +3,15 @@ import multer, { FileFilterCallback } from "multer";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/uploads");
+    let folder = "public/uploads";
+    if (file.fieldname === "avatar") {
+      folder = "public/uploads/userAvatars";
+    } else if (file.fieldname === "orgAvatar") {
+      folder = "public/uploads/orgAvatars";
+    } else if (file.fieldname === "orgImages") {
+      folder = "public/uploads/orgMedia";
+    }
+    cb(null, folder);
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
@@ -34,3 +42,6 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 },
   fileFilter,
 });
+
+export const uploadAvatar = upload.single("avatar");
+export const uploadOrgImages = upload.array("images", 10);
