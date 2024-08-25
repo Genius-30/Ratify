@@ -9,7 +9,7 @@ export interface IOrg extends IBaseUser {
   industry: string;
   topExecutives: string;
   links: Array<String>;
-  images: Array<String>;
+  orgMedia: Array<String>;
 }
 
 const OrgSchema: Schema<IOrg> = new mongoose.Schema({
@@ -43,9 +43,9 @@ const OrgSchema: Schema<IOrg> = new mongoose.Schema({
     default: [],
   },
 
-  images: {
+  orgMedia: {
     type: [String],
-    required: [true, "Images reuqired for creating an orgnization account"],
+    required: [true, "Images required for creating an orgnization account"],
     min: [1, "Atleast one image is required!"],
     max: [10, "Atmost 10 images are allowed"],
   },

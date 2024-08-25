@@ -9,6 +9,7 @@ import {
   Text,
   Button,
   Container,
+  Img,
 } from "@react-email/components";
 
 interface VerificationEmailProps {
@@ -38,6 +39,15 @@ export default function VerificationEmailTemplate({
       <Preview>Your verification code for Ratify</Preview>
       <Container style={styles.container}>
         <Section style={styles.section}>
+          <Row>
+            <Img
+              src="https://res.cloudinary.com/dgzee4v9w/image/upload/v1724136804/Ratify_Logo_hevvsg.png"
+              alt="Ratify Logo"
+              width="120"
+              height="auto"
+              style={styles.logo}
+            />
+          </Row>
           <Row>
             <Heading as="h2" style={styles.heading}>
               Welcome to Ratify, {username}!
@@ -84,6 +94,10 @@ const styles = {
   },
   section: {
     padding: "10px 0",
+  },
+  logo: {
+    margin: "0 auto",
+    display: "block",
   },
   heading: {
     fontSize: "24px",

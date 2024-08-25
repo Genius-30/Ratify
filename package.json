@@ -10,10 +10,11 @@
   },
   "dependencies": {
     "@react-email/components": "^0.0.22",
+    "@types/formidable": "^3.4.5",
     "cloudinary": "^2.4.0",
     "clsx": "^2.1.1",
+    "formidable": "^3.5.1",
     "mongoose": "^8.5.2",
-    "multer": "^1.4.5-lts.1",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
@@ -24,7 +25,6 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/multer": "^1.4.11",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -1,25 +1,44 @@
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/dbConnect";
-import { uploadAvatar } from "@/middlewares/multer.middleware";
 import Org from "@/models/organization.model";
 import User from "@/models/user.model";
 import { UserRole } from "@/types/enums";
 import { uploadOnCloudinary } from "@/utils/cloudinary.util";
 import { apiError, apiResponse } from "@/utils/response.util";
 import sendVerificationEmail from "@/utils/sendVerificationEmail";
-import { NextRequest, NextResponse } from "next/server";
+import { writeFile } from "fs/promises";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
-    //username, fullName, email, password, avatar, verifyCode, verifyCodeExpiry, isVerified, role
-    const { fullName, username, email, password } = await req.json();
+    const formData = await req.formData();
+    const timestamp = Date.now();
+
+    const avatar = formData.get("avatar") as File;
+    let avatarUrl: string | undefined;
+
+    if (avatar instanceof File) {
+      const avatarByteData = await avatar.arrayBuffer();
+      const buffer = Buffer.from(avatarByteData);
+      const avatarPath = `/public/uploads/${timestamp}-${avatar.name}`;
+
+      const fullAvatarPath = `${process.cwd()}${avatarPath}`;
+      await writeFile(fullAvatarPath, buffer);
+
+      const avatarUploadResult = await uploadOnCloudinary(fullAvatarPath);
+      if (!avatarUploadResult) {
+        return apiError(500, "Failed to upload avatar to Cloudinary");
+      }
+      avatarUrl = avatarUploadResult.url;
+    } else {
+      return apiError(400, "Avatar is required!");
+    }
+
+    const fullName = formData.get("fullName") as string;
+    const username = formData.get("username") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     if (!(fullName && username && email && password)) {
       return apiError(400, "Please fill all fields");
@@ -29,18 +48,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
       username,
       isVerified: true,
     });
-
     if (existingVerifiedUserByUsername) {
       return apiError(400, "Username already taken!");
     }
+
     const isUsernameIsOrganizationName = await Org.findOne({
       organizationName: username.trim().toLowerCase(),
     });
-
     if (isUsernameIsOrganizationName) {
       return apiError(
         400,
-        "Username cant be the same as an organization name!"
+        "Username can't be the same as an organization name!"
       );
     }
 
@@ -51,23 +69,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return apiError(400, "User already exists.");
     }
 
-    await new Promise<void>((resolve, reject) => {
-      uploadAvatar(req as any, {} as any, (err: any) =>
-        err ? reject(err) : resolve()
-      );
-    });
-
-    const avatar = (req as any).file;
-
-    let uploadResult;
-    if (avatar) {
-      uploadResult = await uploadOnCloudinary(avatar.path);
-      if (!uploadResult) {
-        return apiError(500, "Failed to upload avatar to Cloudinary");
-      }
-    }
-
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCodeExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     if (existingUserByEmail) {
       if (existingUserByEmail.isVerified) {
@@ -75,12 +78,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
       } else {
         existingUserByEmail.username = username;
         existingUserByEmail.fullName = fullName;
-        existingUserByEmail.avatar = uploadResult?.url;
+        existingUserByEmail.avatar = avatarUrl;
         existingUserByEmail.password = password;
         existingUserByEmail.verifyCode = verifyCode;
-        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
+        existingUserByEmail.verifyCodeExpiry = verifyCodeExpiry;
         existingUserByEmail.role = UserRole.USER;
-
         await existingUserByEmail.save();
       }
     } else {
@@ -88,10 +90,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
         username,
         fullName,
         email,
-        avatar: uploadResult?.url,
+        avatar: avatarUrl,
         password,
         verifyCode,
-        verifyCodeExpiry: new Date(Date.now() + 3600000),
+        verifyCodeExpiry,
         role: UserRole.USER,
       });
       await user.save();
@@ -102,16 +104,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       username,
       verifyCode
     );
-
     if (!emailResponse.success) {
       return apiError(500, emailResponse.message);
     }
 
     return apiResponse(200, {
-      message: "User registered successfully! Verify you email now.",
+      message: "User registered successfully! Verify your email now.",
     });
   } catch (error) {
     console.log("Error registering user:", error);
-    return apiError(500, "An error occured while registering the user", error);
+    return apiError(500, "An error occurred while registering the user", error);
   }
 }

@@ -1,33 +1,68 @@
 import dbConnect from "@/lib/dbConnect";
-import { uploadAvatar, uploadOrgImages } from "@/middlewares/multer.middleware";
 import Org from "@/models/organization.model";
 import User from "@/models/user.model";
 import { UserRole } from "@/types/enums";
 import { uploadOnCloudinary } from "@/utils/cloudinary.util";
 import { apiError, apiResponse } from "@/utils/response.util";
 import sendVerificationEmail from "@/utils/sendVerificationEmail";
+import { writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
     //email, password, avatar, verifyCode, verifyCodeExpiry, isVerified, role, organizationName, organizationBio, industry, topExecutives, links, images
-    const {
-      organizationName,
-      organizationBio,
-      email,
-      password,
-      industry,
-      topExecutives,
-      links,
-    } = await req.json();
+    const formData = await req.formData();
+    console.log("formData", formData);
+
+    const timestamp = Date.now();
+
+    const avatar = formData.get("avatar") as File;
+    const orgMedia = formData.getAll("orgMedia") as File[];
+
+    let avatarUrl: string | undefined;
+    if (avatar instanceof File) {
+      const avatarByteData = await avatar.arrayBuffer();
+      const buffer = Buffer.from(avatarByteData);
+      const avatarPath = `/public/uploads/${timestamp}-${avatar.name}`;
+
+      const fullAvatarPath = `${process.cwd()}${avatarPath}`;
+      await writeFile(fullAvatarPath, buffer);
+
+      const avatarUploadResult = await uploadOnCloudinary(fullAvatarPath);
+      if (!avatarUploadResult) {
+        return apiError(500, "Failed to upload avatar to Cloudinary");
+      }
+      avatarUrl = avatarUploadResult.url;
+    } else {
+      return apiError(400, "Avatar is required!");
+    }
+
+    let orgMediaUrls: string[] = [];
+    if (orgMedia.length > 0) {
+      for (const file of orgMedia) {
+        const mediaByteData = await file.arrayBuffer();
+        const buffer = Buffer.from(mediaByteData);
+        const mediaPath = `/public/uploads/${Date.now()}-${file.name}`;
+        const fullMediaPath = `${process.cwd()}${mediaPath}`;
+        await writeFile(fullMediaPath, buffer);
+
+        const mediaUploadResult = await uploadOnCloudinary(fullMediaPath);
+        if (!mediaUploadResult) {
+          return apiError(500, `Failed to upload media to Cloudinary`);
+        }
+        orgMediaUrls.push(mediaUploadResult.url);
+      }
+    }
+
+    const organizationName = formData.get("organizationName") as string;
+    const organizationBio = formData.get("organizationBio") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const industry = formData.get("industry") as string;
+    const topExecutives = formData.get("topExecutives") as string;
+    const links = formData.getAll("links") as string[];
 
     if (
       !(
@@ -67,44 +102,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return apiError(400, "User already exists.");
     }
 
-    await new Promise<void>((resolve, reject) => {
-      uploadAvatar(req as any, {} as any, (err: any) =>
-        err ? reject(err) : resolve()
-      );
-    });
-
-    await new Promise<void>((resolve, reject) => {
-      uploadOrgImages(req as any, {} as any, (err: any) =>
-        err ? reject(err) : resolve()
-      );
-    });
-
-    const orgAvatar = (req as any).file;
-    const orgMedia = (req as any).files || [];
-
-    let orgAvatarCloudinaryUrl;
-    if (!orgAvatar) {
-      return apiError(400, "Please upload an avatar");
-    } else {
-      orgAvatarCloudinaryUrl = await uploadOnCloudinary(orgAvatar.path);
-      if (!orgAvatarCloudinaryUrl) {
-        return apiError(500, "Failed to upload avatar to Cloudinary");
-      }
-    }
-
-    let orgMediaCloudinaryUrls = [];
-    if (orgMedia.length > 0) {
-      orgMediaCloudinaryUrls = await Promise.all(
-        orgMedia.map(async (image: any) => {
-          const uploadResult = await uploadOnCloudinary(image.path);
-          if (!uploadResult) {
-            return apiError(500, "Failed to upload avatar to Cloudinary");
-          }
-        })
-      );
-    }
-
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCodeExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     if (existingOrgByEmail) {
       if (existingOrgByEmail.isVerified) {
@@ -112,10 +111,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       } else {
         existingOrgByEmail.organizationName = organizationName;
         existingOrgByEmail.organizationBio = organizationBio;
-        existingOrgByEmail.avatar = orgAvatarCloudinaryUrl?.url;
-        existingOrgByEmail.images = orgMediaCloudinaryUrls.map(
-          (url: any) => url.url
-        );
+        existingOrgByEmail.avatar = avatarUrl;
+        existingOrgByEmail.orgMedia = orgMediaUrls;
         existingOrgByEmail.password = password;
         existingOrgByEmail.industry = industry;
         existingOrgByEmail.topExecutives = topExecutives;
@@ -128,7 +125,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
     } else {
       const org = new Org({
-        avatar: orgAvatarCloudinaryUrl?.url,
+        avatar: avatarUrl,
         organizationName,
         organizationBio,
         email,
@@ -136,8 +133,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
         industry,
         topExecutives,
         links,
-        images: orgMediaCloudinaryUrls.map((url: any) => url.url),
-        verifyCodeExpiry: new Date(Date.now() + 3600000),
+        orgMedia: orgMediaUrls,
+        verifyCode,
+        verifyCodeExpiry,
         isVerified: false,
         role: UserRole.ORG,
       });

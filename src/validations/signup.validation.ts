@@ -45,7 +45,7 @@ export const signupValidationForOrg = z.object({
   industry: z.enum(Industries, { invalid_type_error: "Invalid industry" }),
   topExecutives: z.string(),
   links: z.array(z.string()).optional(),
-  images: z
+  orgMedia: z
     .array(z.string())
     .min(1, { message: "Atleast one image is required!" })
     .max(10, { message: "Atmost 10 images are allowed!" }),

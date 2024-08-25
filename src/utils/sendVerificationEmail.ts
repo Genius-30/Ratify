@@ -13,17 +13,23 @@ const sendVerificationEmail = async (
     const { data, error } = await resend.emails.send({
       from: "Ratify <onboarding@resend.dev>",
       to: email,
-      subject: "Ratify | Verification Code",
+      subject: "Ratify - verification code",
       react: VerificationEmailTemplate({ username, otp: verifyCode }),
     });
 
     if (error) {
-      return apiError(400, "Error sending verification email: ", error.message);
+      return { sucess: false, message: "Error sending verification email!" };
     }
 
-    apiResponse(200, data);
-  } catch (error) {
-    return apiError(500, "Error sending verification email: ", error);
+    return {
+      success: true,
+      message: "Verification email sent successfully.",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Failed to send verification email.",
+    };
   }
 };
 
