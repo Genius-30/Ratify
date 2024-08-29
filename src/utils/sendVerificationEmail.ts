@@ -1,5 +1,4 @@
 import VerificationEmailTemplate from "@/components/emails/VerificationEmailTemplate";
-import { apiError, apiResponse } from "@/utils/response.util";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);

@@ -6,7 +6,7 @@ import { uploadOnCloudinary } from "@/utils/cloudinary.util";
 import { apiError, apiResponse } from "@/utils/response.util";
 import sendVerificationEmail from "@/utils/sendVerificationEmail";
 import { writeFile } from "fs/promises";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   await dbConnect();
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingVerifiedOrgByName) {
-      return apiError(400, "Organization with this name already exists");
+      return apiError(400, "Organization already exists");
     }
 
     const isOrgNameAlreadyTakenedByUser = await User.findOne({
