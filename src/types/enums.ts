@@ -13,3 +13,11 @@ export const Industries = [
   "Manufacturing",
   "Energy",
 ] as const;
+
+export enum FeedbackStatus {
+  Pending = "Pending",
+  Reviewed = "Reviewed",
+  Implemented = "Implemented",
+  Rejected = "Rejected",
+  UnPublished = "UnPublished",
+}

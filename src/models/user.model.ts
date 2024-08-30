@@ -1,14 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 import { IFeedback } from "./feedback.model";
 import baseUserSchema, { IBaseUser } from "./baseUser.model";
-import { IOrg } from "./organization.model";
 import { comparePassword, hashPassword } from "@/utils/password.util";
 
 export interface IUser extends IBaseUser {
   fullName: string;
   username: string;
   feedbacks: IFeedback[];
-  allowedSentMessageTo: IOrg[];
+  allowedSentMessageTo: string[];
 }
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(
@@ -42,9 +41,10 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
       },
     ],
 
-    allowedSentMessageTo: [
-      { type: mongoose.Types.ObjectId, ref: "Organization" },
-    ],
+    allowedSentMessageTo: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
