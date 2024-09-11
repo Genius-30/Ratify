@@ -15,6 +15,7 @@ export interface IDiscussion extends Document {
     id: ObjectId;
     type: ParticipantType;
   };
+  feedbackId: ObjectId;
   content: string;
   createdAt: Date;
   updatedAt: Date;
@@ -29,6 +30,10 @@ const DiscussionSchema: Schema<IDiscussion> = new mongoose.Schema(
     receiver: {
       id: { type: Schema.Types.ObjectId, required: true },
       type: { type: String, enum: ParticipantType, required: true },
+    },
+    feedbackId: {
+      type: Schema.Types.ObjectId,
+      required: [true, "Feedback ID is required!"],
     },
     content: {
       type: String,

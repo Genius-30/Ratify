@@ -6,7 +6,6 @@ import { comparePassword, hashPassword } from "@/utils/password.util";
 export interface IUser extends IBaseUser {
   fullName: string;
   username: string;
-  feedbacks: IFeedback[];
   allowedSentMessageTo: string[];
 }
 
@@ -33,13 +32,6 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
       unique: true,
       index: true,
     },
-
-    feedbacks: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "Feedback",
-      },
-    ],
 
     allowedSentMessageTo: {
       type: [String],
